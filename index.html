@@ -1,175 +1,766 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Key Generated | NAXORA LAG</title>
-    <style>
-        :root { --bg: #000000; --card: #121212; --text: #ffffff; --accent: #00ff88; --error: #ff4444; }
-        
-        body { 
-            background-color: var(--bg); 
-            color: var(--text); 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            margin: 0; 
-            padding: 20px;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Key Generated | NAXORA LAG</title>
 
-        .container { 
-            width: 100%; 
-            max-width: 400px; 
-            text-align: center;
-            margin-top: 50px;
-        }
+<style>
+:root{
+    --bg:#020504;
+    --panel:#08100e;
+    --panel2:#0b1512;
+    --line:rgba(255,255,255,.08);
+    --text:#f4fff9;
+    --muted:#7c8b86;
+    --accent:#00ff88;
+    --accent2:#00d978;
+    --danger:#ff4055;
+}
 
-        /* --- UI Visibility Controls --- */
-        #mainContainer { display: none; }
-        #bypassContainer { display: none; }
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
 
-        /* --- BYPASS ERROR CARD --- */
-        .error-card { 
-            background: #1a0a0a; 
-            border: 1px solid #441111; 
-            border-radius: 28px; 
-            padding: 40px 30px; 
-            box-shadow: 0 10px 40px rgba(255,0,0,0.1);
-        }
-        .error-icon { font-size: 50px; margin-bottom: 20px; }
-        .error-title { color: var(--error); font-size: 24px; font-weight: bold; margin-bottom: 15px; }
+html,body{
+    min-height:100%;
+}
 
-        .key-icon { 
-            background: #1a1a1a; 
-            width: 85px; 
-            height: 85px; 
-            border-radius: 50%; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            margin: -45px auto 15px; 
-            border: 1px solid #333; 
-            overflow: hidden; 
-            box-shadow: 0 0 25px rgba(0, 255, 136, 0.1);
-            position: relative;
-            z-index: 10;
-        }
+body{
+    min-height:100vh;
+    padding:22px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:
+        radial-gradient(circle at 15% 10%,rgba(0,255,136,.12),transparent 30%),
+        radial-gradient(circle at 90% 90%,rgba(0,217,255,.07),transparent 28%),
+        var(--bg);
+    overflow-x:hidden;
+}
 
-        .key-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+/* background grid */
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    opacity:.45;
+    background:
+        linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);
+    background-size:52px 52px;
+    mask-image:linear-gradient(to bottom,black,transparent 92%);
+}
 
-        @media (min-width: 768px) {
-            .container { max-width: 450px; }
-            .key-icon { width: 110px; height: 110px; margin: -55px auto 20px; }
-        }
+/* ambient glow */
+body::after{
+    content:"";
+    position:fixed;
+    width:420px;
+    height:420px;
+    right:-180px;
+    top:-180px;
+    border-radius:50%;
+    background:rgba(0,255,136,.08);
+    filter:blur(80px);
+    pointer-events:none;
+}
 
-        h1 { font-size: 28px; font-weight: bold; margin-bottom: 8px; }
-        .subtitle { color: #888; font-size: 14px; margin-bottom: 30px; }
+/* --------------------------------
+   MAIN CONTAINER
+-------------------------------- */
 
-        .card { 
-            background: var(--card); 
-            border: 1px solid #222; 
-            border-radius: 28px; 
-            padding: 40px 30px 30px; 
-            text-align: center; 
-            box-shadow: 0 15px 50px rgba(0,0,0,0.6); 
-            position: relative;
-        }
+.container{
+    position:relative;
+    width:100%;
+    max-width:760px;
+    margin:auto;
+    z-index:2;
+}
 
-        h2 { font-size: 22px; margin-bottom: 12px; color: var(--accent); font-weight: 700; }
-        .card-p { color: #999; font-size: 14px; line-height: 1.6; margin-bottom: 25px; }
+/* visibility controls */
+#mainContainer{
+    display:none;
+}
 
-        .key-box { 
-            background: #000; 
-            padding: 22px; 
-            border-radius: 18px; 
-            border: 1px dashed var(--accent); 
-            margin-bottom: 25px; 
-            position: relative; 
-            overflow: hidden; 
-        }
-        
-        #finalKey { 
-            color: var(--accent); 
-            font-family: 'Courier New', monospace; 
-            font-size: 19px; 
-            font-weight: bold; 
-            letter-spacing: 1px; 
-        }
-        
-        .btn { 
-            width: 100%; 
-            padding: 18px; 
-            background: #ffffff; 
-            color: #000; 
-            border: none; 
-            border-radius: 16px; 
-            font-size: 16px; 
-            font-weight: 800; 
-            cursor: pointer; 
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-        }
+#bypassContainer{
+    display:none;
+}
 
-        .btn:hover { 
-            transform: scale(1.03); 
-            background: var(--accent); 
-            box-shadow: 0 10px 20px rgba(0,255,136,0.2);
-        }
+/* --------------------------------
+   TOP BAR
+-------------------------------- */
 
-        .btn-red { background: var(--error); color: white; margin-top: 20px; }
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:18px;
+}
 
-        .footer { 
-            margin-top: 80px; 
-            color: #333; 
-            font-size: 10px; 
-            letter-spacing: 2px; 
-            text-transform: uppercase; 
-            font-weight: bold; 
-        }
-    </style>
+.brand{
+    display:flex;
+    align-items:center;
+    gap:11px;
+}
+
+.brand-mark{
+    width:38px;
+    height:38px;
+    border-radius:11px;
+    overflow:hidden;
+    border:1px solid rgba(0,255,136,.25);
+    background:#07100d;
+}
+
+.brand-mark img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.brand-name{
+    font-size:12px;
+    font-weight:900;
+    letter-spacing:2px;
+}
+
+.brand-sub{
+    margin-top:3px;
+    color:#52615c;
+    font-size:7px;
+    letter-spacing:1.8px;
+    font-weight:700;
+}
+
+.status{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    padding:8px 11px;
+    border:1px solid rgba(0,255,136,.14);
+    background:rgba(0,255,136,.035);
+    border-radius:20px;
+    color:#7b8b85;
+    font-size:7px;
+    font-weight:900;
+    letter-spacing:1.5px;
+}
+
+.status-dot{
+    width:5px;
+    height:5px;
+    border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 12px var(--accent);
+}
+
+/* --------------------------------
+   SUCCESS PANEL
+-------------------------------- */
+
+.success-shell{
+    position:relative;
+    overflow:hidden;
+    border:1px solid var(--line);
+    border-radius:30px;
+    background:
+        linear-gradient(135deg,rgba(255,255,255,.035),transparent 35%),
+        linear-gradient(145deg,#09120f,#040907 70%);
+    box-shadow:
+        0 35px 100px rgba(0,0,0,.62),
+        inset 0 1px rgba(255,255,255,.035);
+}
+
+.success-shell::before{
+    content:"";
+    position:absolute;
+    left:0;
+    top:0;
+    bottom:0;
+    width:3px;
+    background:linear-gradient(var(--accent),transparent 80%);
+    box-shadow:0 0 30px rgba(0,255,136,.35);
+}
+
+.shell-glow{
+    position:absolute;
+    width:400px;
+    height:400px;
+    right:-210px;
+    top:-230px;
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(0,255,136,.14),transparent 67%);
+}
+
+/* --------------------------------
+   HEADER
+-------------------------------- */
+
+.panel-head{
+    position:relative;
+    z-index:2;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:23px 27px;
+    border-bottom:1px solid var(--line);
+}
+
+.panel-label{
+    color:#5d6d67;
+    font-size:7px;
+    letter-spacing:2.4px;
+    font-weight:900;
+}
+
+.panel-id{
+    color:#4c5a55;
+    font-family:monospace;
+    font-size:8px;
+    letter-spacing:1.5px;
+}
+
+/* --------------------------------
+   CONTENT
+-------------------------------- */
+
+.content{
+    position:relative;
+    z-index:2;
+    padding:42px 44px 38px;
+}
+
+.icon-area{
+    display:flex;
+    justify-content:center;
+}
+
+.key-icon{
+    width:104px;
+    height:104px;
+    padding:5px;
+    border-radius:28px;
+    background:linear-gradient(145deg,rgba(0,255,136,.22),rgba(0,255,136,.025));
+    border:1px solid rgba(0,255,136,.3);
+    box-shadow:
+        0 0 0 7px rgba(0,255,136,.025),
+        0 0 45px rgba(0,255,136,.10);
+    overflow:hidden;
+}
+
+.key-icon img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    border-radius:23px;
+}
+
+.kicker{
+    text-align:center;
+    margin-top:27px;
+    color:var(--accent);
+    font-size:8px;
+    font-weight:900;
+    letter-spacing:3px;
+}
+
+h1{
+    margin-top:10px;
+    text-align:center;
+    font-size:34px;
+    line-height:1;
+    letter-spacing:-1.5px;
+    font-weight:950;
+}
+
+.subtitle{
+    max-width:430px;
+    margin:14px auto 0;
+    color:var(--muted);
+    text-align:center;
+    font-size:12px;
+    line-height:1.7;
+}
+
+/* --------------------------------
+   KEY SECTION
+-------------------------------- */
+
+.key-section{
+    margin-top:34px;
+    padding:20px;
+    border:1px solid var(--line);
+    border-radius:19px;
+    background:rgba(0,0,0,.27);
+}
+
+.key-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:11px;
+}
+
+.key-header span{
+    color:#5c6b66;
+    font-size:7px;
+    font-weight:900;
+    letter-spacing:2px;
+}
+
+.key-header b{
+    color:#61716b;
+    font-size:7px;
+    font-family:monospace;
+}
+
+.key-box{
+    min-height:68px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:15px;
+    border-radius:13px;
+    background:#010303;
+    border:1px dashed rgba(0,255,136,.35);
+    position:relative;
+    overflow:hidden;
+}
+
+.key-box::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(
+        110deg,
+        transparent 20%,
+        rgba(0,255,136,.055) 50%,
+        transparent 80%
+    );
+    animation:scan 3s linear infinite;
+}
+
+@keyframes scan{
+    from{transform:translateX(-100%)}
+    to{transform:translateX(100%)}
+}
+
+#finalKey{
+    position:relative;
+    z-index:2;
+    color:var(--accent);
+    font-family:"Courier New",monospace;
+    font-size:18px;
+    font-weight:bold;
+    letter-spacing:1.4px;
+    word-break:break-word;
+    text-shadow:0 0 18px rgba(0,255,136,.22);
+}
+
+/* --------------------------------
+   INFO ROW
+-------------------------------- */
+
+.info-row{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:9px;
+    margin-top:10px;
+}
+
+.info{
+    padding:14px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:rgba(255,255,255,.018);
+}
+
+.info small{
+    display:block;
+    color:#53615c;
+    font-size:6px;
+    letter-spacing:1.6px;
+    font-weight:900;
+}
+
+.info strong{
+    display:block;
+    margin-top:6px;
+    font-size:10px;
+}
+
+/* --------------------------------
+   BUTTON
+-------------------------------- */
+
+.btn{
+    width:100%;
+    min-height:54px;
+    margin-top:18px;
+    border:0;
+    border-radius:14px;
+    background:linear-gradient(135deg,#ffffff,#e9fff5);
+    color:#020504;
+    font-size:10px;
+    font-weight:950;
+    letter-spacing:1.8px;
+    cursor:pointer;
+    transition:.25s ease;
+}
+
+.btn:hover{
+    transform:translateY(-2px);
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    box-shadow:0 15px 35px rgba(0,255,136,.18);
+}
+
+/* --------------------------------
+   FOOTER
+-------------------------------- */
+
+.security-line{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    margin-top:19px;
+    color:#485650;
+    font-size:7px;
+    letter-spacing:1.4px;
+    font-weight:800;
+}
+
+.security-line i{
+    width:5px;
+    height:5px;
+    border-radius:50%;
+    background:var(--accent);
+    opacity:.8;
+}
+
+.footer{
+    margin-top:20px;
+    text-align:center;
+    color:#34413d;
+    font-size:7px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    font-weight:800;
+}
+
+/* --------------------------------
+   BYPASS CARD
+-------------------------------- */
+
+.error-card{
+    position:relative;
+    overflow:hidden;
+    padding:38px 30px 30px;
+    border:1px solid rgba(255,64,85,.16);
+    border-radius:28px;
+    background:
+        radial-gradient(circle at 50% 0%,rgba(255,64,85,.09),transparent 40%),
+        #0b0607;
+    box-shadow:0 30px 80px rgba(0,0,0,.6);
+    text-align:center;
+}
+
+.error-card::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    height:2px;
+    background:linear-gradient(90deg,transparent,var(--danger),transparent);
+}
+
+.error-icon{
+    width:72px;
+    height:72px;
+    display:grid;
+    place-items:center;
+    margin:0 auto 20px;
+    border-radius:22px;
+    background:rgba(255,64,85,.07);
+    border:1px solid rgba(255,64,85,.18);
+    font-size:31px;
+}
+
+.error-title{
+    color:var(--danger);
+    font-size:23px;
+    font-weight:950;
+}
+
+.error-card p{
+    margin:13px auto 0;
+    max-width:390px;
+    color:#777;
+    font-size:12px;
+    line-height:1.7;
+}
+
+.btn-red{
+    margin-top:24px;
+    background:var(--danger);
+    color:#fff;
+}
+
+.btn-red:hover{
+    background:#ff5265;
+    box-shadow:0 12px 30px rgba(255,64,85,.2);
+}
+
+/* --------------------------------
+   RESPONSIVE
+-------------------------------- */
+
+@media(max-width:600px){
+
+    body{
+        padding:13px;
+        align-items:flex-start;
+    }
+
+    .container{
+        margin-top:8px;
+    }
+
+    .panel-head{
+        padding:19px 20px;
+    }
+
+    .content{
+        padding:32px 18px 27px;
+    }
+
+    .key-icon{
+        width:88px;
+        height:88px;
+        border-radius:23px;
+    }
+
+    .key-icon img{
+        border-radius:18px;
+    }
+
+    h1{
+        font-size:28px;
+    }
+
+    .subtitle{
+        font-size:11px;
+    }
+
+    .key-section{
+        margin-top:27px;
+        padding:14px;
+    }
+
+    #finalKey{
+        font-size:15px;
+        letter-spacing:1px;
+    }
+
+    .info-row{
+        grid-template-columns:1fr;
+    }
+
+    .info{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+    }
+
+    .info strong{
+        margin-top:0;
+    }
+}
+
+@media(max-width:390px){
+
+    .brand-sub{
+        display:none;
+    }
+
+    .status{
+        padding:7px 9px;
+    }
+
+    .status span{
+        display:none;
+    }
+
+    .panel-id{
+        display:none;
+    }
+
+    .content{
+        padding-left:14px;
+        padding-right:14px;
+    }
+
+    h1{
+        font-size:25px;
+    }
+
+    #finalKey{
+        font-size:13px;
+    }
+}
+</style>
 </head>
+
 <body>
 
 <div class="container">
+
+    <!-- ================= MAIN ================= -->
     <div id="mainContainer">
-        <div class="key-icon">
-            <img src="./assets/logo.png" alt="UKM">
-        </div>
 
-        <h1>Access Unlocked</h1>
-        <p class="subtitle">Your device-locked license key is ready.</p>
+        <div class="topbar">
 
-        <div class="card">
-            <h2>Generation Success!</h2>
-            <p class="card-p">This key is locked to your device. Share it, and it won't work for others.</p>
+            <div class="brand">
+                <div class="brand-mark">
+                    <img src="./assets/logo.png" alt="NAXORA LAG">
+                </div>
 
-            <div class="key-box">
-                <span id="finalKey">SECURE FETCHING...</span>
+                <div>
+                    <div class="brand-name">NAXORA LAG</div>
+                    <div class="brand-sub">KEY GENERATION SYSTEM</div>
+                </div>
             </div>
 
-            <button class="btn" id="copyBtn" onclick="copyKey()">
-                COPY TO CLIPBOARD
-            </button>
+            <div class="status">
+                <i class="status-dot"></i>
+                <span>SYSTEM ONLINE</span>
+            </div>
+
         </div>
+
+
+        <div class="success-shell">
+
+            <div class="shell-glow"></div>
+
+            <div class="panel-head">
+                <div class="panel-label">SECURE ACCESS PASS</div>
+                <div class="panel-id">NX / 001 / VERIFIED</div>
+            </div>
+
+
+            <div class="content">
+
+                <div class="icon-area">
+                    <div class="key-icon">
+                        <img src="./assets/logo.png" alt="UKM">
+                    </div>
+                </div>
+
+
+                <div class="kicker">GENERATION COMPLETE</div>
+
+                <h1>Access Unlocked</h1>
+
+                <p class="subtitle">
+                    Your device-locked license key has been generated
+                    successfully and is ready to use.
+                </p>
+
+
+                <div class="key-section">
+
+                    <div class="key-header">
+                        <span>YOUR LICENSE KEY</span>
+                        <b>DEVICE LOCKED</b>
+                    </div>
+
+                    <div class="key-box">
+                        <span id="finalKey">SECURE FETCHING...</span>
+                    </div>
+
+
+                    <div class="info-row">
+
+                        <div class="info">
+                            <small>ACCESS</small>
+                            <strong>Unlocked</strong>
+                        </div>
+
+                        <div class="info">
+                            <small>DEVICE</small>
+                            <strong>Locked</strong>
+                        </div>
+
+                        <div class="info">
+                            <small>VALIDITY</small>
+                            <strong>24 Hours</strong>
+                        </div>
+
+                    </div>
+
+
+                    <button class="btn" id="copyBtn" onclick="copyKey()">
+                        COPY TO CLIPBOARD
+                    </button>
+
+                </div>
+
+
+                <div class="security-line">
+                    <i></i>
+                    THIS KEY WILL ONLY WORK ON YOUR DEVICE
+                    <i></i>
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
+
+
+    <!-- ================= BYPASS ================= -->
 
     <div id="bypassContainer">
+
         <div class="error-card">
+
             <div class="error-icon">🚫</div>
-            <div class="error-title">Bypass Detected!</div>
-            <p style="color:#888; font-size: 14px; line-height: 1.5;">Direct access is prohibited. Please use the official link from the script to generate your key.</p>
-            <button class="btn btn-red" onclick="location.href='steps.html'">RETURN TO STEPS</button>
+
+            <div class="error-title">
+                Bypass Detected!
+            </div>
+
+            <p>
+                Direct access is prohibited. Please use the official
+                link from the script to generate your key.
+            </p>
+
+            <button
+                class="btn btn-red"
+                onclick="location.href='steps.html'">
+                RETURN TO STEPS
+            </button>
+
         </div>
+
     </div>
 
-    <div class="footer">NAXORA LAG SECURITY SYSTEM</div>
+
+    <div class="footer">
+        NAXORA LAG SECURITY SYSTEM
+    </div>
+
 </div>
+
 
 <script>
     async function checkSecurity() {
@@ -229,7 +820,6 @@
 }
 
 
-
     function copyKey() {
         const keyText = document.getElementById('finalKey').innerText;
         if(keyText.includes("SECURE") || keyText.includes("CONNECT")) return;
@@ -247,5 +837,6 @@
 
     window.onload = checkSecurity;
 </script>
+
 </body>
 </html>
